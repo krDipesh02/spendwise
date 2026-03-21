@@ -1,0 +1,47 @@
+package com.spendwise.controller;
+
+import com.spendwise.dto.entity.UserProfile;
+import com.spendwise.dto.request.SetBudgetRequest;
+import com.spendwise.dto.service.BudgetService;
+import com.spendwise.service.CurrentUserService;
+import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.time.YearMonth;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/budgets")
+public class BudgetController {
+
+    private final BudgetService budgetService;
+    private final CurrentUserService currentUserService;
+
+    public BudgetController(BudgetService budgetService, CurrentUserService currentUserService) {
+        this.budgetService = budgetService;
+        this.currentUserService = currentUserService;
+    }
+
+    @PostMapping
+    public BudgetService.BudgetStatus setBudget(@Valid @RequestBody SetBudgetRequest request) {
+        UserProfile user = currentUserService.getCurrentUser();
+        budgetService.setBudget(user, request.getCategoryId(), request.getMonth(), request.getAmount());
+        return budgetService.getBudgetStatus(user, request.getMonth()).stream()
+                .filter(status -> request.getCategoryId() == null
+                        ? "OVERALL".equals(status.getCategoryName())
+                        : request.getCategoryId().toString().equals(status.getCategoryId()))
+                .findFirst()
+                .orElseThrow();
+    }
+
+    @GetMapping
+    public List<BudgetService.BudgetStatus> status(@RequestParam @DateTimeFormat(pattern = "yyyy-MM") YearMonth month) {
+        return budgetService.getBudgetStatus(currentUserService.getCurrentUser(), month);
+    }
+}

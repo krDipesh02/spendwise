@@ -1,0 +1,38 @@
+package com.spendwise.controller;
+
+import com.spendwise.dto.entity.UserProfile;
+import com.spendwise.service.CurrentUserService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/auth/google")
+public class GoogleAuthController {
+
+    private final CurrentUserService currentUserService;
+
+    public GoogleAuthController(CurrentUserService currentUserService) {
+        this.currentUserService = currentUserService;
+    }
+
+    @GetMapping("/me")
+    public Map<String, Object> me(@AuthenticationPrincipal OAuth2User oauth2User) {
+        if (oauth2User == null) {
+            return Map.of("authenticated", false);
+        }
+        UserProfile user = currentUserService.getCurrentUser();
+        return Map.of(
+                "authenticated", true,
+                "userId", user.getId().toString(),
+                "name", oauth2User.getAttribute("name"),
+                "email", oauth2User.getAttribute("email"),
+                "sub", oauth2User.getAttribute("sub"),
+                "googleLinked", user.isGoogleLinked()
+        );
+    }
+}

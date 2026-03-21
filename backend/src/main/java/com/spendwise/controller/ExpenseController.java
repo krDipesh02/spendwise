@@ -1,0 +1,85 @@
+package com.spendwise.controller;
+
+import com.spendwise.dto.entity.UserProfile;
+import com.spendwise.dto.request.SaveExpenseRequest;
+import com.spendwise.dto.response.ExpenseDto;
+import com.spendwise.service.CurrentUserService;
+import com.spendwise.dto.service.ExpenseService;
+import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/expenses")
+public class ExpenseController {
+
+    private final ExpenseService expenseService;
+    private final CurrentUserService currentUserService;
+
+    public ExpenseController(ExpenseService expenseService, CurrentUserService currentUserService) {
+        this.expenseService = expenseService;
+        this.currentUserService = currentUserService;
+    }
+
+    @GetMapping
+    public List<ExpenseDto> list(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                                 @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        UserProfile user = currentUserService.getCurrentUser();
+        return (from != null && to != null)
+                ? expenseService.listBetweenDtos(user, from, to)
+                : expenseService.listDtos(user);
+    }
+
+    @GetMapping("/{id}")
+    public ExpenseDto get(@PathVariable UUID id) {
+        return expenseService.getDto(currentUserService.getCurrentUser(), id);
+    }
+
+    @PostMapping
+    public ExpenseDto create(@Valid @RequestBody SaveExpenseRequest request) {
+        UserProfile user = currentUserService.getCurrentUser();
+        return expenseService.createDto(
+                user,
+                request.getCategoryId(),
+                request.getAmount(),
+                request.getCurrency(),
+                request.getSpentAt(),
+                request.getMerchant(),
+                request.getDescription(),
+                request.getReceiptId()
+        );
+    }
+
+    @PutMapping("/{id}")
+    public ExpenseDto update(@PathVariable UUID id, @Valid @RequestBody SaveExpenseRequest request) {
+        UserProfile user = currentUserService.getCurrentUser();
+        return expenseService.updateDto(
+                user,
+                id,
+                request.getCategoryId(),
+                request.getAmount(),
+                request.getCurrency(),
+                request.getSpentAt(),
+                request.getMerchant(),
+                request.getDescription(),
+                request.getReceiptId()
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable UUID id) {
+        expenseService.delete(currentUserService.getCurrentUser(), id);
+    }
+}
