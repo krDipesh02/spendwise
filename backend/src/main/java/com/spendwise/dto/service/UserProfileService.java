@@ -6,6 +6,7 @@ import com.spendwise.dto.repository.UserProfileRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,13 +19,16 @@ public class UserProfileService {
     private final UserProfileRepository userProfileRepository;
     private final SeedDataConfig seedDataConfig;
     private final AuditService auditService;
+    private final PasswordEncoder passwordEncoder;
 
     public UserProfileService(UserProfileRepository userProfileRepository,
                               SeedDataConfig seedDataConfig,
-                              AuditService auditService) {
+                              AuditService auditService,
+                              PasswordEncoder passwordEncoder) {
         this.userProfileRepository = userProfileRepository;
         this.seedDataConfig = seedDataConfig;
         this.auditService = auditService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional(readOnly = true)
@@ -83,5 +87,35 @@ public class UserProfileService {
         UserProfile saved = userProfileRepository.save(user);
         auditService.log(saved, "UPDATE_PROFILE", "USER", saved.getId().toString(), saved.getDisplayName());
         return saved;
+    }
+
+    @Transactional
+    public UserProfile registerPasswordUser(@NotBlank String username,
+                                            @NotBlank String rawPassword,
+                                            @NotBlank String displayName) {
+        if (userProfileRepository.findByUsername(username).isPresent()) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        UserProfile user = new UserProfile();
+        user.setUsername(username);
+        user.setPasswordHash(passwordEncoder.encode(rawPassword));
+        user.setDisplayName(displayName);
+        user.setBaseCurrency("INR");
+        user.setTimezone("Asia/Kolkata");
+        user.setMonthlyLimit(BigDecimal.ZERO);
+        UserProfile saved = userProfileRepository.save(user);
+        seedDataConfig.seedDefaultCategories(saved);
+        auditService.log(saved, "REGISTER_PASSWORD", "USER", saved.getId().toString(), saved.getUsername());
+        return saved;
+    }
+
+    @Transactional(readOnly = true)
+    public UserProfile getByUsername(@NotBlank String username) {
+        return userProfileRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found for username"));
+    }
+
+    public boolean matchesPassword(UserProfile user, String rawPassword) {
+        return user.getPasswordHash() != null && passwordEncoder.matches(rawPassword, user.getPasswordHash());
     }
 }

@@ -17,6 +17,12 @@ public class UserProfile extends BaseEntity {
     @Column(unique = true)
     private String googleSubject;
 
+    @Column(unique = true)
+    private String username;
+
+    @Column(length = 200)
+    private String passwordHash;
+
     @Column
     private String email;
 
@@ -60,6 +66,22 @@ public class UserProfile extends BaseEntity {
 
     public void setGoogleSubject(String googleSubject) {
         this.googleSubject = googleSubject;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public String getEmail() {

@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { api } from "../api";
 import { useSession } from "../session";
 
 const navItems = [
@@ -11,7 +12,14 @@ const navItems = [
 ];
 
 export default function Layout() {
-  const { session } = useSession();
+  const { session, refreshSession } = useSession();
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+    await api.logout();
+    await refreshSession();
+    navigate("/");
+  }
 
   return (
     <div className="shell shell--app">
@@ -37,7 +45,10 @@ export default function Layout() {
         </nav>
 
         <div className="session-chip">
-          <span>{session.email || session.name}</span>
+          <span>{session.email || session.name || session.username}</span>
+          <button className="button button--ghost button--small" onClick={handleLogout} type="button">
+            Log out
+          </button>
         </div>
       </aside>
 

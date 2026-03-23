@@ -2,5 +2,6 @@ package com.spendwise.utils;
 
 public enum AuthenticationType {
     API_KEY,
-    GOOGLE
+    GOOGLE,
+    PASSWORD
 }

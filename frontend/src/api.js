@@ -33,7 +33,31 @@ async function request(path, options = {}) {
 }
 
 export const api = {
-  getSession: () => request("/auth/google/me"),
+  getSession: () => request("/auth/session"),
+  loginWithPassword: (body) =>
+    request("/auth/password/login", {
+      method: "POST",
+      body: JSON.stringify(body)
+    }),
+  registerWithPassword: (body) =>
+    request("/auth/password/register", {
+      method: "POST",
+      body: JSON.stringify(body)
+    }),
+  requestPasswordReset: (body) =>
+    request("/auth/password/reset/request", {
+      method: "POST",
+      body: JSON.stringify(body)
+    }),
+  confirmPasswordReset: (body) =>
+    request("/auth/password/reset/confirm", {
+      method: "POST",
+      body: JSON.stringify(body)
+    }),
+  logout: () =>
+    request("/auth/logout", {
+      method: "POST"
+    }),
   getProfile: () => request("/api/profile"),
   updateProfile: (body) =>
     request("/api/profile", {
