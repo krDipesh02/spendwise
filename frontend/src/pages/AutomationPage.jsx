@@ -4,7 +4,7 @@ import PageHeader from "../components/PageHeader";
 
 export default function AutomationPage() {
   const [apiKeys, setApiKeys] = useState([]);
-  const [name, setName] = useState("n8n workflow key");
+  const [name, setName] = useState("My API key");
   const [createdKey, setCreatedKey] = useState("");
   const [message, setMessage] = useState("");
 
@@ -21,7 +21,7 @@ export default function AutomationPage() {
     const payload = await api.createApiKey({ name });
     setCreatedKey(payload.apiKey);
     setName("");
-    setMessage("Store this key inside n8n credentials. The full value is only returned once.");
+    setMessage("Copy this key now — the full value is only shown once.");
     await refresh();
   }
 
@@ -34,9 +34,9 @@ export default function AutomationPage() {
   return (
     <div className="stack-lg">
       <PageHeader
-        eyebrow="Automation"
+        eyebrow="Integrations"
         title="API Keys"
-        description="Generate and revoke the credentials that n8n uses when calling Spendwise."
+        description="Generate and manage API keys for external integrations with Spendwise."
       />
 
       {message ? <div className="status-banner">{message}</div> : null}
@@ -44,7 +44,7 @@ export default function AutomationPage() {
       <section className="panel panel--accent">
         <div className="panel__header">
           <p className="eyebrow">Generate</p>
-          <h2>Create a user-owned API key</h2>
+          <h2>Create a new API key</h2>
         </div>
         <form className="stack" onSubmit={createKey}>
           <label className="field">

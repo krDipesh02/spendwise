@@ -76,7 +76,11 @@ export default function CategoriesPage() {
             <li className="list__item" key={category.id}>
               <div>
                 <strong>{category.name}</strong>
-                <p>{category.icon}</p>
+                <p>
+                  <span className={`tag${category.active ? "" : " tag--inactive"}`}>
+                    {category.active ? "Active" : "Inactive"}
+                  </span>
+                </p>
               </div>
               <button className="button button--ghost button--small" onClick={() => toggleCategory(category)} type="button">
                 {category.active ? "Disable" : "Enable"}

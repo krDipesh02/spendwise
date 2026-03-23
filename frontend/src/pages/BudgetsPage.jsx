@@ -35,7 +35,7 @@ export default function BudgetsPage() {
       <PageHeader
         eyebrow="Planning"
         title="Budgets"
-        description="Define monthly category budgets and inspect remaining balance."
+        description="Set monthly spending limits and track how much is left."
         actions={<input className="month-input" type="month" value={month} onChange={(event) => setMonth(event.target.value)} />}
       />
 
@@ -84,16 +84,29 @@ export default function BudgetsPage() {
         </div>
         {budgets.length ? (
           <ul className="list">
-            {budgets.map((budget) => (
-              <li className="list__item" key={budget.budgetId}>
-                <div>
-                  <strong>{budget.categoryName}</strong>
-                  <p>
-                    Budget {budget.amount} · Spent {budget.spent} · Remaining {budget.remaining}
-                  </p>
-                </div>
-              </li>
-            ))}
+            {budgets.map((budget) => {
+              const pct = budget.amount > 0 ? Math.min((budget.spent / budget.amount) * 100, 100) : 0;
+              const level = pct >= 100 ? "over" : pct >= 75 ? "warn" : "safe";
+              return (
+                <li className="list__item" key={budget.budgetId} style={{ flexDirection: "column", alignItems: "stretch" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <strong>{budget.categoryName}</strong>
+                    <span style={{ fontSize: "0.85rem", color: "rgba(20,33,61,0.5)" }}>
+                      {budget.spent} / {budget.amount}
+                    </span>
+                  </div>
+                  <div className="budget-progress">
+                    <div className="budget-progress__track">
+                      <div className={`budget-progress__fill budget-progress__fill--${level}`} style={{ width: `${pct}%` }} />
+                    </div>
+                    <div className="budget-progress__labels">
+                      <span>Spent: {budget.spent}</span>
+                      <span>Remaining: {budget.remaining}</span>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         ) : (
           <p className="muted">No budgets defined for this month.</p>

@@ -108,28 +108,52 @@ export default function LandingPage() {
       <section className="landing-left">
         <div className="hero__copy">
           <p className="eyebrow">Spendwise</p>
-          <h1>Personal finance UI for people, secure API keys for n8n.</h1>
+          <h1>Take control of every rupee you spend.</h1>
           <p className="lede">
-            Track spending, automate workflows, and keep a personal ledger that works both with a browser UI and
-            your n8n agent orchestration.
+            Track daily expenses, set monthly budgets, and understand where your money goes
+            — all in one clean, distraction-free dashboard.
           </p>
           <div className="status-banner">
-            <strong>{loading ? "Checking session" : session.authenticated ? "Authenticated" : "Signed out"}</strong>
+            <strong>{loading ? "Checking session" : session.authenticated ? "Welcome back" : "Get started"}</strong>
             <p className="muted">
               {session.authenticated
-                ? `${session.email || session.name || session.username} is ready for dashboard access.`
-                : "Sign in to reach your dashboard and automation tools."}
+                ? `${session.email || session.name || session.username} — your dashboard is ready.`
+                : "Create a free account or sign in to access your spending dashboard."}
             </p>
           </div>
           {message ? <p className="status-banner">{message}</p> : null}
         </div>
 
-        <div className="placeholder-card">
-          <div className="placeholder-image" />
-          <div className="placeholder-copy">
-            <p className="eyebrow">Preview</p>
-            <h2>Spendwise workspace</h2>
-            <p className="muted">This is where your dashboard, budgets, and automation controls live.</p>
+        <div className="features">
+          <div className="feature-card">
+            <div className="feature-card__icon">{"\u2197"}</div>
+            <h3>Expense Tracking</h3>
+            <p>Log every purchase with categories, merchants, and notes for full visibility.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-card__icon">{"\u25CE"}</div>
+            <h3>Smart Budgets</h3>
+            <p>Set monthly limits per category and see your remaining balance at a glance.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-card__icon">{"\u2261"}</div>
+            <h3>Category Insights</h3>
+            <p>Break down spending by category to spot patterns and cut unnecessary costs.</p>
+          </div>
+        </div>
+
+        <div className="stat-row">
+          <div className="stat-card">
+            <strong>100%</strong>
+            <span>Free to use</span>
+          </div>
+          <div className="stat-card">
+            <strong>{"\u221E"}</strong>
+            <span>Transactions</span>
+          </div>
+          <div className="stat-card">
+            <strong>{"\u2713"}</strong>
+            <span>Privacy first</span>
           </div>
         </div>
       </section>
@@ -137,8 +161,8 @@ export default function LandingPage() {
       <section className="landing-right">
         <div className="panel auth-panel stack-lg">
           <div className="panel__header">
-            <p className="eyebrow">{authMode === "login" ? "Sign in" : "Sign up"}</p>
-            <h2>{authMode === "login" ? "Username & password" : "Create your account"}</h2>
+            <p className="eyebrow">{authMode === "login" ? "Welcome back" : "Join Spendwise"}</p>
+            <h2>{authMode === "login" ? "Sign in to your account" : "Create your account"}</h2>
           </div>
 
           <form className="form-grid" onSubmit={handleAuthSubmit}>
