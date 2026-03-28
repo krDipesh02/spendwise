@@ -26,6 +26,11 @@ public class AuthSessionController {
         this.currentUserService = currentUserService;
     }
 
+    /**
+     * Returns the current authenticated session details for either Google OAuth or password login.
+     *
+     * @return a map describing whether the request is authenticated and the current user's session metadata
+     */
     @GetMapping("/session")
     public Map<String, Object> session() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -60,6 +65,12 @@ public class AuthSessionController {
         return Map.of("authenticated", false);
     }
 
+    /**
+     * Invalidates the active HTTP session and clears the Spring Security context.
+     *
+     * @param request the current HTTP request used to locate the existing session
+     * @return a status payload confirming logout
+     */
     @PostMapping("/logout")
     public Map<String, Object> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);

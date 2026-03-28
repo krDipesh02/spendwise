@@ -30,18 +30,34 @@ public class ApiKeyController {
         this.userApiKeyService = userApiKeyService;
     }
 
+    /**
+     * Creates a new API key for the authenticated user.
+     *
+     * @param request contains the display name to assign to the generated key
+     * @return the generated API key payload, including the one-time secret value
+     */
     @PostMapping
     public ApiKeyCreatedDto create(@Valid @RequestBody CreateApiKeyRequest request) {
         UserProfile user = currentUserService.getCurrentUser();
         return userApiKeyService.generate(user, request.getName());
     }
 
+    /**
+     * Lists active API keys belonging to the authenticated user.
+     *
+     * @return all non-revoked API keys for the current user
+     */
     @GetMapping
     public List<ApiKeyDto> list() {
         UserProfile user = currentUserService.getCurrentUser();
         return userApiKeyService.listActive(user).stream().map(ApiKeyDto::from).toList();
     }
 
+    /**
+     * Revokes an API key owned by the authenticated user.
+     *
+     * @param id the identifier of the API key to revoke
+     */
     @DeleteMapping("/{id}")
     public void revoke(@PathVariable UUID id) {
         UserProfile user = currentUserService.getCurrentUser();

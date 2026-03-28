@@ -2,6 +2,8 @@ const JSON_HEADERS = {
   "Content-Type": "application/json"
 };
 
+const BACKEND_BASE_PATH = "/api/v1";
+
 async function request(path, options = {}) {
   const response = await fetch(path, {
     credentials: "include",
@@ -33,80 +35,80 @@ async function request(path, options = {}) {
 }
 
 export const api = {
-  getSession: () => request("/auth/session"),
+  getSession: () => request(`${BACKEND_BASE_PATH}/auth/session`),
   loginWithPassword: (body) =>
-    request("/auth/password/login", {
+    request(`${BACKEND_BASE_PATH}/auth/password/login`, {
       method: "POST",
       body: JSON.stringify(body)
     }),
   registerWithPassword: (body) =>
-    request("/auth/password/register", {
+    request(`${BACKEND_BASE_PATH}/auth/password/register`, {
       method: "POST",
       body: JSON.stringify(body)
     }),
   requestPasswordReset: (body) =>
-    request("/auth/password/reset/request", {
+    request(`${BACKEND_BASE_PATH}/auth/password/reset/request`, {
       method: "POST",
       body: JSON.stringify(body)
     }),
   confirmPasswordReset: (body) =>
-    request("/auth/password/reset/confirm", {
+    request(`${BACKEND_BASE_PATH}/auth/password/reset/confirm`, {
       method: "POST",
       body: JSON.stringify(body)
     }),
   logout: () =>
-    request("/auth/logout", {
+    request(`${BACKEND_BASE_PATH}/auth/logout`, {
       method: "POST"
     }),
-  getProfile: () => request("/api/profile"),
+  getProfile: () => request(`${BACKEND_BASE_PATH}/profile`),
   updateProfile: (body) =>
-    request("/api/profile", {
+    request(`${BACKEND_BASE_PATH}/profile`, {
       method: "PUT",
       body: JSON.stringify(body)
     }),
-  listExpenses: (query = "") => request(`/api/expenses${query}`),
+  listExpenses: (query = "") => request(`${BACKEND_BASE_PATH}/expenses${query}`),
   createExpense: (body) =>
-    request("/api/expenses", {
+    request(`${BACKEND_BASE_PATH}/expenses`, {
       method: "POST",
       body: JSON.stringify(body)
     }),
   updateExpense: (id, body) =>
-    request(`/api/expenses/${id}`, {
+    request(`${BACKEND_BASE_PATH}/expenses/${id}`, {
       method: "PUT",
       body: JSON.stringify(body)
     }),
   deleteExpense: (id) =>
-    request(`/api/expenses/${id}`, {
+    request(`${BACKEND_BASE_PATH}/expenses/${id}`, {
       method: "DELETE"
     }),
-  listCategories: () => request("/api/categories"),
+  listCategories: () => request(`${BACKEND_BASE_PATH}/categories`),
   createCategory: (body) =>
-    request("/api/categories", {
+    request(`${BACKEND_BASE_PATH}/categories`, {
       method: "POST",
       body: JSON.stringify(body)
     }),
   updateCategory: (id, body) =>
-    request(`/api/categories/${id}`, {
+    request(`${BACKEND_BASE_PATH}/categories/${id}`, {
       method: "PUT",
       body: JSON.stringify(body)
     }),
-  getBudgets: (month) => request(`/api/budgets?month=${month}`),
+  getBudgets: (month) => request(`${BACKEND_BASE_PATH}/budgets?month=${month}`),
   createBudget: (body) =>
-    request("/api/budgets", {
+    request(`${BACKEND_BASE_PATH}/budgets`, {
       method: "POST",
       body: JSON.stringify(body)
     }),
-  getMonthlySummary: (month) => request(`/api/analytics/monthly-summary?month=${month}`),
-  getCategorySummary: (month) => request(`/api/analytics/category-summary?month=${month}`),
-  getTrend: (from, to) => request(`/api/analytics/trend?from=${from}&to=${to}`),
-  listApiKeys: () => request("/api/api-keys"),
+  getMonthlySummary: (month) => request(`${BACKEND_BASE_PATH}/analytics/monthly-summary?month=${month}`),
+  getCategorySummary: (month) => request(`${BACKEND_BASE_PATH}/analytics/category-summary?month=${month}`),
+  getTrend: (from, to) => request(`${BACKEND_BASE_PATH}/analytics/trend?from=${from}&to=${to}`),
+  listApiKeys: () => request(`${BACKEND_BASE_PATH}/api-keys`),
   createApiKey: (body) =>
-    request("/api/api-keys", {
+    request(`${BACKEND_BASE_PATH}/api-keys`, {
       method: "POST",
       body: JSON.stringify(body)
     }),
   revokeApiKey: (id) =>
-    request(`/api/api-keys/${id}`, {
+    request(`${BACKEND_BASE_PATH}/api-keys/${id}`, {
       method: "DELETE"
     })
 };

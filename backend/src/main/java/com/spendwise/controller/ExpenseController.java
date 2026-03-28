@@ -33,6 +33,13 @@ public class ExpenseController {
         this.currentUserService = currentUserService;
     }
 
+    /**
+     * Lists expenses for the authenticated user, optionally constrained to a date range.
+     *
+     * @param from optional inclusive lower bound for {@code spentAt}, formatted as an ISO local date
+     * @param to optional inclusive upper bound for {@code spentAt}, formatted as an ISO local date
+     * @return expenses for the current user matching the requested filter
+     */
     @GetMapping
     public List<ExpenseDto> list(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                                  @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
@@ -42,11 +49,23 @@ public class ExpenseController {
                 : expenseService.listDtos(user);
     }
 
+    /**
+     * Retrieves a single expense belonging to the authenticated user.
+     *
+     * @param id the expense identifier
+     * @return the requested expense
+     */
     @GetMapping("/{id}")
     public ExpenseDto get(@PathVariable UUID id) {
         return expenseService.getDto(currentUserService.getCurrentUser(), id);
     }
 
+    /**
+     * Creates an expense for the authenticated user.
+     *
+     * @param request contains the expense details to persist
+     * @return the created expense
+     */
     @PostMapping
     public ExpenseDto create(@Valid @RequestBody SaveExpenseRequest request) {
         UserProfile user = currentUserService.getCurrentUser();
@@ -62,6 +81,13 @@ public class ExpenseController {
         );
     }
 
+    /**
+     * Updates an existing expense belonging to the authenticated user.
+     *
+     * @param id the expense identifier
+     * @param request contains the replacement expense details
+     * @return the updated expense
+     */
     @PutMapping("/{id}")
     public ExpenseDto update(@PathVariable UUID id, @Valid @RequestBody SaveExpenseRequest request) {
         UserProfile user = currentUserService.getCurrentUser();
@@ -78,6 +104,11 @@ public class ExpenseController {
         );
     }
 
+    /**
+     * Deletes an expense belonging to the authenticated user.
+     *
+     * @param id the expense identifier
+     */
     @DeleteMapping("/{id}")
     public void delete(@PathVariable UUID id) {
         expenseService.delete(currentUserService.getCurrentUser(), id);

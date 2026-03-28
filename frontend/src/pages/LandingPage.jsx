@@ -269,7 +269,7 @@ export default function LandingPage() {
           </div>
 
           <div className="auth-alt-actions">
-            <a className="button button--primary" href="/oauth2/authorization/google">
+            <a className="button button--primary" href="/api/v1/oauth2/authorization/google">
               Sign In With Google
             </a>
             <button

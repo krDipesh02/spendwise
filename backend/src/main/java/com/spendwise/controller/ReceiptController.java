@@ -26,11 +26,23 @@ public class ReceiptController {
         this.currentUserService = currentUserService;
     }
 
+    /**
+     * Uploads receipt data for the authenticated user.
+     *
+     * @param request contains the receipt file URL and extracted raw text
+     * @return the stored receipt metadata
+     */
     @PostMapping
     public ReceiptDto upload(@Valid @RequestBody UploadReceiptRequest request) {
         return ReceiptDto.from(receiptService.upload(currentUserService.getCurrentUser(), request.getFileUrl(), request.getRawText()));
     }
 
+    /**
+     * Retrieves a receipt by identifier.
+     *
+     * @param id the receipt identifier
+     * @return the stored receipt details
+     */
     @GetMapping("/{id}")
     public ReceiptDto get(@PathVariable UUID id) {
         return ReceiptDto.from(receiptService.get(id));

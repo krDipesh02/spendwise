@@ -35,6 +35,14 @@ public class PasswordAuthController {
         this.userProfileService = userProfileService;
     }
 
+    /**
+     * Registers a new password-based account and authenticates the resulting session.
+     *
+     * @param request contains the username, password, and display name for the new account
+     * @param httpRequest the incoming HTTP request used to persist the security context
+     * @param httpResponse the outgoing HTTP response used to persist the security context
+     * @return the created user profile
+     */
     @PostMapping("/register")
     public UserProfileDto register(@Valid @RequestBody PasswordRegisterRequest request,
                                    HttpServletRequest httpRequest,
@@ -53,6 +61,14 @@ public class PasswordAuthController {
         return UserProfileDto.from(user);
     }
 
+    /**
+     * Authenticates a password-based account and stores the login in the current HTTP session.
+     *
+     * @param request contains the username and password credentials to validate
+     * @param httpRequest the incoming HTTP request used to persist the security context
+     * @param httpResponse the outgoing HTTP response used to persist the security context
+     * @return the authenticated user profile
+     */
     @PostMapping("/login")
     public UserProfileDto login(@Valid @RequestBody PasswordLoginRequest request,
                                 HttpServletRequest httpRequest,

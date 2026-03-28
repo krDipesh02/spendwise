@@ -25,12 +25,24 @@ public class PasswordResetController {
         this.passwordResetService = passwordResetService;
     }
 
+    /**
+     * Starts a password reset flow for a password-authenticated account.
+     *
+     * @param request contains the username requesting a reset token
+     * @return the issued reset token and its expiration timestamp
+     */
     @PostMapping("/request")
     public PasswordResetTokenResponse request(@Valid @RequestBody PasswordResetRequest request) {
         PasswordResetToken token = passwordResetService.requestReset(request.getUsername());
         return new PasswordResetTokenResponse(token.getToken(), token.getExpiresAt());
     }
 
+    /**
+     * Completes a password reset using a previously issued reset token.
+     *
+     * @param request contains the reset token and replacement password
+     * @return a status payload confirming the password was updated
+     */
     @PostMapping("/confirm")
     public Map<String, Object> confirm(@Valid @RequestBody PasswordResetConfirmRequest request) {
         try {

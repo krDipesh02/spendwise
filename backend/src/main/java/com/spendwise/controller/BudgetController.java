@@ -28,6 +28,12 @@ public class BudgetController {
         this.currentUserService = currentUserService;
     }
 
+    /**
+     * Creates or updates a monthly budget for the authenticated user and returns the resulting budget status.
+     *
+     * @param request contains the month, optional category, and budget amount to store
+     * @return the computed budget status for the updated overall or category budget
+     */
     @PostMapping
     public BudgetService.BudgetStatus setBudget(@Valid @RequestBody SetBudgetRequest request) {
         UserProfile user = currentUserService.getCurrentUser();
@@ -40,6 +46,12 @@ public class BudgetController {
                 .orElseThrow();
     }
 
+    /**
+     * Returns the authenticated user's budget status entries for a given month.
+     *
+     * @param month the month to summarize, formatted as {@code yyyy-MM}
+     * @return all budget status entries for the requested month
+     */
     @GetMapping
     public List<BudgetService.BudgetStatus> status(@RequestParam @DateTimeFormat(pattern = "yyyy-MM") YearMonth month) {
         return budgetService.getBudgetStatus(currentUserService.getCurrentUser(), month);

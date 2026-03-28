@@ -20,6 +20,12 @@ public class GoogleAuthController {
         this.currentUserService = currentUserService;
     }
 
+    /**
+     * Returns profile details for the currently authenticated Google OAuth user.
+     *
+     * @param oauth2User the authenticated OAuth principal resolved by Spring Security
+     * @return a map describing authentication status and linked Google account metadata
+     */
     @GetMapping("/me")
     public Map<String, Object> me(@AuthenticationPrincipal OAuth2User oauth2User) {
         if (oauth2User == null) {
