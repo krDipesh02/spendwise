@@ -137,7 +137,7 @@ export default function ExpensesPage() {
                 <div>
                   <strong>{expense.merchant || expense.categoryName || "Expense"}</strong>
                   <p>
-                    {expense.spentAt} · {expense.categoryName || "Uncategorized"} · {expense.description || "No note"}
+                    {expense.spentAt} · <span className="tag">{expense.categoryName || "Uncategorized"}</span> · {expense.description || "No note"}
                   </p>
                 </div>
                 <div className="list__actions">

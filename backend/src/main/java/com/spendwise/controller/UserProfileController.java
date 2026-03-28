@@ -24,11 +24,22 @@ public class UserProfileController {
         this.userProfileService = userProfileService;
     }
 
+    /**
+     * Returns the authenticated user's profile.
+     *
+     * @return the current user's profile details
+     */
     @GetMapping
     public UserProfileDto getProfile() {
         return UserProfileDto.from(currentUserService.getCurrentUser());
     }
 
+    /**
+     * Updates mutable fields on the authenticated user's profile.
+     *
+     * @param request contains the profile fields to persist
+     * @return the updated user profile
+     */
     @PutMapping
     public UserProfileDto updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
         UserProfile user = currentUserService.getCurrentUser();

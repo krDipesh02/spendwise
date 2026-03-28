@@ -31,6 +31,12 @@ public class RecurringExpenseController {
         this.currentUserService = currentUserService;
     }
 
+    /**
+     * Creates a recurring expense definition for the authenticated user.
+     *
+     * @param request contains the recurring expense details, including schedule and category
+     * @return the created recurring expense
+     */
     @PostMapping
     public RecurringExpenseDto create(@Valid @RequestBody SaveRecurringExpenseRequest request) {
         UserProfile user = currentUserService.getCurrentUser();
@@ -45,6 +51,12 @@ public class RecurringExpenseController {
         ));
     }
 
+    /**
+     * Lists recurring expenses for the authenticated user, optionally filtered by due date.
+     *
+     * @param dueBy optional upper bound for the next due date, formatted as an ISO local date
+     * @return recurring expenses matching the requested filter
+     */
     @GetMapping
     public List<RecurringExpenseDto> list(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueBy) {
         UserProfile user = currentUserService.getCurrentUser();

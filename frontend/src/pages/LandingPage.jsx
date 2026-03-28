@@ -1,44 +1,293 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { api } from "../api";
 import { useSession } from "../session";
 
 export default function LandingPage() {
   const { loading, session, refreshSession } = useSession();
+  const navigate = useNavigate();
+  const [loginForm, setLoginForm] = useState({ username: "", password: "" });
+  const [registerForm, setRegisterForm] = useState({ username: "", password: "", displayName: "" });
+  const [resetRequest, setResetRequest] = useState({ username: "" });
+  const [resetConfirm, setResetConfirm] = useState({ token: "", newPassword: "" });
+  const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState({});
+  const [authMode, setAuthMode] = useState("login");
+  const [showReset, setShowReset] = useState(false);
+
+  function validateLogin() {
+    const nextErrors = {};
+    if (loginForm.username.trim().length < 3) nextErrors.loginUsername = "Username must be at least 3 characters.";
+    if (loginForm.password.length < 8) nextErrors.loginPassword = "Password must be at least 8 characters.";
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  }
+
+  function validateRegister() {
+    const nextErrors = {};
+    if (registerForm.displayName.trim().length < 2) nextErrors.registerDisplayName = "Display name is too short.";
+    if (registerForm.username.trim().length < 3) nextErrors.registerUsername = "Username must be at least 3 characters.";
+    if (registerForm.password.length < 8) nextErrors.registerPassword = "Password must be at least 8 characters.";
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  }
+
+  function validateResetRequest() {
+    const nextErrors = {};
+    if (resetRequest.username.trim().length < 3) nextErrors.resetUsername = "Username must be at least 3 characters.";
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  }
+
+  function validateResetConfirm() {
+    const nextErrors = {};
+    if (resetConfirm.token.trim().length < 10) nextErrors.resetToken = "Token looks too short.";
+    if (resetConfirm.newPassword.length < 8) nextErrors.resetPassword = "Password must be at least 8 characters.";
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  }
+
+  async function handleAuthSubmit(event) {
+    event.preventDefault();
+    if (authMode === "login") {
+      if (!validateLogin()) return;
+      try {
+        await api.loginWithPassword(loginForm);
+        setMessage("Logged in with username/password.");
+        setShowReset(false);
+        await refreshSession();
+        navigate("/app/dashboard");
+      } catch (error) {
+        const errorMessage = error.message || "Login failed.";
+        setMessage(errorMessage);
+        if (errorMessage.toLowerCase().includes("invalid")) {
+          setShowReset(true);
+        }
+      }
+      return;
+    }
+
+    if (!validateRegister()) return;
+    try {
+      await api.registerWithPassword(registerForm);
+      setMessage("Account created and logged in.");
+      setAuthMode("login");
+      await refreshSession();
+      navigate("/app/dashboard");
+    } catch (error) {
+      setMessage(error.message || "Registration failed.");
+    }
+  }
+
+  async function handleResetRequest(event) {
+    event.preventDefault();
+    if (!validateResetRequest()) return;
+    try {
+      const payload = await api.requestPasswordReset(resetRequest);
+      setMessage(`Reset token: ${payload.token} (expires ${payload.expiresAt})`);
+      setResetConfirm({ ...resetConfirm, token: payload.token });
+    } catch (error) {
+      setMessage(error.message || "Reset request failed.");
+    }
+  }
+
+  async function handleResetConfirm(event) {
+    event.preventDefault();
+    if (!validateResetConfirm()) return;
+    try {
+      await api.confirmPasswordReset(resetConfirm);
+      setMessage("Password reset complete. You can log in now.");
+      setResetConfirm({ token: "", newPassword: "" });
+    } catch (error) {
+      setMessage(error.message || "Reset confirm failed.");
+    }
+  }
 
   return (
-    <div className="shell">
-      <header className="hero">
+    <div className="shell landing-grid">
+      <section className="landing-left">
         <div className="hero__copy">
           <p className="eyebrow">Spendwise</p>
-          <h1>Personal finance UI for people, secure API keys for n8n.</h1>
+          <h1>Take control of every rupee you spend.</h1>
           <p className="lede">
-            Sign in with Google to manage your spending data from the browser, then issue
-            user-owned API keys for the automation workflows that call the backend.
+            Track daily expenses, set monthly budgets, and understand where your money goes
+            — all in one clean, distraction-free dashboard.
           </p>
-          <div className="hero__actions">
-            <a className="button button--primary" href="/oauth2/authorization/google">
-              Sign In With Google
-            </a>
-            <button className="button button--ghost" onClick={refreshSession} type="button">
-              Refresh Session
-            </button>
-            {session.authenticated ? (
-              <Link className="button button--ghost" to="/app/dashboard">
-                Open App
-              </Link>
-            ) : null}
+          <div className="status-banner">
+            <strong>{loading ? "Checking session" : session.authenticated ? "Welcome back" : "Get started"}</strong>
+            <p className="muted">
+              {session.authenticated
+                ? `${session.email || session.name || session.username} — your dashboard is ready.`
+                : "Create a free account or sign in to access your spending dashboard."}
+            </p>
+          </div>
+          {message ? <p className="status-banner">{message}</p> : null}
+        </div>
+
+        <div className="features">
+          <div className="feature-card">
+            <div className="feature-card__icon">{"\u2197"}</div>
+            <h3>Expense Tracking</h3>
+            <p>Log every purchase with categories, merchants, and notes for full visibility.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-card__icon">{"\u25CE"}</div>
+            <h3>Smart Budgets</h3>
+            <p>Set monthly limits per category and see your remaining balance at a glance.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-card__icon">{"\u2261"}</div>
+            <h3>Category Insights</h3>
+            <p>Break down spending by category to spot patterns and cut unnecessary costs.</p>
           </div>
         </div>
 
-        <div className="hero__card">
-          <span className="hero__card-label">Status</span>
-          <strong>{loading ? "Checking session" : session.authenticated ? "Authenticated" : "Signed out"}</strong>
-          <p>
-            {session.authenticated
-              ? `${session.email || session.name} is ready for dashboard access.`
-              : "Use Google OAuth to enter the frontend and create API keys."}
-          </p>
+        <div className="stat-row">
+          <div className="stat-card">
+            <strong>100%</strong>
+            <span>Free to use</span>
+          </div>
+          <div className="stat-card">
+            <strong>{"\u221E"}</strong>
+            <span>Transactions</span>
+          </div>
+          <div className="stat-card">
+            <strong>{"\u2713"}</strong>
+            <span>Privacy first</span>
+          </div>
         </div>
-      </header>
+      </section>
+
+      <section className="landing-right">
+        <div className="panel auth-panel stack-lg">
+          <div className="panel__header">
+            <p className="eyebrow">{authMode === "login" ? "Welcome back" : "Join Spendwise"}</p>
+            <h2>{authMode === "login" ? "Sign in to your account" : "Create your account"}</h2>
+          </div>
+
+          <form className="form-grid" onSubmit={handleAuthSubmit}>
+            {authMode === "signup" ? (
+              <label className="field">
+                <span>Display name</span>
+                <input
+                  value={registerForm.displayName}
+                  onChange={(event) => setRegisterForm({ ...registerForm, displayName: event.target.value })}
+                  required
+                />
+                {errors.registerDisplayName ? <span className="field-error">{errors.registerDisplayName}</span> : null}
+              </label>
+            ) : null}
+            <label className="field">
+              <span>Username</span>
+              <input
+                value={authMode === "login" ? loginForm.username : registerForm.username}
+                onChange={(event) =>
+                  authMode === "login"
+                    ? setLoginForm({ ...loginForm, username: event.target.value })
+                    : setRegisterForm({ ...registerForm, username: event.target.value })
+                }
+                required
+              />
+              {authMode === "login" && errors.loginUsername ? (
+                <span className="field-error">{errors.loginUsername}</span>
+              ) : null}
+              {authMode === "signup" && errors.registerUsername ? (
+                <span className="field-error">{errors.registerUsername}</span>
+              ) : null}
+            </label>
+            <label className="field">
+              <span>Password</span>
+              <input
+                type="password"
+                value={authMode === "login" ? loginForm.password : registerForm.password}
+                onChange={(event) =>
+                  authMode === "login"
+                    ? setLoginForm({ ...loginForm, password: event.target.value })
+                    : setRegisterForm({ ...registerForm, password: event.target.value })
+                }
+                required
+              />
+              {authMode === "login" && errors.loginPassword ? (
+                <span className="field-error">{errors.loginPassword}</span>
+              ) : null}
+              {authMode === "signup" && errors.registerPassword ? (
+                <span className="field-error">{errors.registerPassword}</span>
+              ) : null}
+            </label>
+            <button className="button button--primary" type="submit">
+              {authMode === "login" ? "Log In" : "Sign Up"}
+            </button>
+          </form>
+
+          {authMode === "login" && showReset ? (
+            <div className="reset-panel stack">
+              <p className="eyebrow">Forgot password?</p>
+              <form className="form-grid" onSubmit={handleResetRequest}>
+                <label className="field field--wide">
+                  <span>Username</span>
+                  <input
+                    value={resetRequest.username}
+                    onChange={(event) => setResetRequest({ username: event.target.value })}
+                    required
+                  />
+                  {errors.resetUsername ? <span className="field-error">{errors.resetUsername}</span> : null}
+                </label>
+                <button className="button button--ghost" type="submit">
+                  Request reset token
+                </button>
+              </form>
+
+              <form className="form-grid" onSubmit={handleResetConfirm}>
+                <label className="field">
+                  <span>Reset token</span>
+                  <input
+                    value={resetConfirm.token}
+                    onChange={(event) => setResetConfirm({ ...resetConfirm, token: event.target.value })}
+                    required
+                  />
+                  {errors.resetToken ? <span className="field-error">{errors.resetToken}</span> : null}
+                </label>
+                <label className="field">
+                  <span>New password</span>
+                  <input
+                    type="password"
+                    value={resetConfirm.newPassword}
+                    onChange={(event) => setResetConfirm({ ...resetConfirm, newPassword: event.target.value })}
+                    required
+                  />
+                  {errors.resetPassword ? <span className="field-error">{errors.resetPassword}</span> : null}
+                </label>
+                <button className="button button--primary" type="submit">
+                  Confirm reset
+                </button>
+              </form>
+            </div>
+          ) : null}
+
+          <div className="auth-divider">
+            <span>or</span>
+          </div>
+
+          <div className="auth-alt-actions">
+            <a className="button button--primary" href="/api/v1/oauth2/authorization/google">
+              Sign In With Google
+            </a>
+            <button
+              className="button button--ghost"
+              onClick={() => {
+                const nextMode = authMode === "login" ? "signup" : "login";
+                setAuthMode(nextMode);
+                setErrors({});
+                setMessage("");
+                setShowReset(false);
+              }}
+              type="button"
+            >
+              {authMode === "login" ? "Sign Up" : "Back to Login"}
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

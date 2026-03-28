@@ -1,15 +1,15 @@
 package com.spendwise.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.YearMonth;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MonthlySummaryToolRequest {
+public class PasswordResetRequest {
 
-    private YearMonth month;
+    @NotBlank
+    private String username;
 }

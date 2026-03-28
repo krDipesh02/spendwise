@@ -30,17 +30,35 @@ public class CategoryController {
         this.currentUserService = currentUserService;
     }
 
+    /**
+     * Lists categories available to the authenticated user.
+     *
+     * @return all categories visible to the current user
+     */
     @GetMapping
     public List<CategoryDto> list() {
         return categoryService.list(currentUserService.getCurrentUser()).stream().map(CategoryDto::from).toList();
     }
 
+    /**
+     * Creates a category for the authenticated user.
+     *
+     * @param request contains the category name and icon metadata
+     * @return the created category
+     */
     @PostMapping
     public CategoryDto create(@Valid @RequestBody SaveCategoryRequest request) {
         UserProfile user = currentUserService.getCurrentUser();
         return CategoryDto.from(categoryService.create(user, request.getName(), request.getIcon()));
     }
 
+    /**
+     * Updates a category owned by the authenticated user.
+     *
+     * @param id the category identifier
+     * @param request contains the new category state to persist
+     * @return the updated category
+     */
     @PutMapping("/{id}")
     public CategoryDto update(@PathVariable UUID id, @Valid @RequestBody UpdateCategoryRequest request) {
         UserProfile user = currentUserService.getCurrentUser();

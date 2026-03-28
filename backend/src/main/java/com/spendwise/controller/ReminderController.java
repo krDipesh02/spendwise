@@ -22,11 +22,21 @@ public class ReminderController {
         this.currentUserService = currentUserService;
     }
 
+    /**
+     * Generates reminder records for the authenticated user based on current expense state.
+     *
+     * @return the reminders generated for the current request
+     */
     @PostMapping("/generate")
     public List<ReminderDto> generate() {
         return reminderService.generateReminders(currentUserService.getCurrentUser()).stream().map(ReminderDto::from).toList();
     }
 
+    /**
+     * Lists upcoming reminders for the authenticated user.
+     *
+     * @return upcoming reminders visible to the current user
+     */
     @GetMapping
     public List<ReminderDto> list() {
         return reminderService.listUpcoming(currentUserService.getCurrentUser()).stream().map(ReminderDto::from).toList();

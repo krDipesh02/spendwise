@@ -4,7 +4,7 @@ import { api } from "./api";
 const SessionContext = createContext(null);
 
 export function SessionProvider({ children }) {
-  const [session, setSession] = useState({ authenticated: false });
+  const [session, setSession] = useState({ authenticated: false, authType: null });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export function SessionProvider({ children }) {
       const payload = await api.getSession();
       setSession(payload);
     } catch {
-      setSession({ authenticated: false });
+      setSession({ authenticated: false, authType: null });
     } finally {
       setLoading(false);
     }

@@ -11,4 +11,6 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, UUID> 
     Optional<UserProfile> findByTelegramId(String telegramId);
 
     Optional<UserProfile> findByGoogleSubject(String googleSubject);
+
+    Optional<UserProfile> findByUsername(String username);
 }

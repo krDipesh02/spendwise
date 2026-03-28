@@ -21,6 +21,11 @@ public class AuditController {
         this.currentUserService = currentUserService;
     }
 
+    /**
+     * Returns the audit log entries recorded for the authenticated user.
+     *
+     * @return the user's audit history in reverse chronological order as provided by the service layer
+     */
     @GetMapping
     public List<AuditLogResponse> list() {
         return auditService.list(currentUserService.getCurrentUser()).stream().map(AuditLogResponse::from).toList();

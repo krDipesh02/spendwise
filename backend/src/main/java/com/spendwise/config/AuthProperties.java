@@ -13,6 +13,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @AllArgsConstructor
 public class AuthProperties {
 
-    private String apiKeyHeader;
     private String googleSuccessRedirectUrl;
 }
