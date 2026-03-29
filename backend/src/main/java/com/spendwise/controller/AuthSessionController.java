@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/auth")
@@ -50,9 +51,9 @@ public class AuthSessionController {
                     "authenticated", true,
                     "authType", AuthenticationType.GOOGLE.name(),
                     "userId", user.getId().toString(),
-                    "name", oauth2User.getAttribute("name"),
-                    "email", oauth2User.getAttribute("email"),
-                    "sub", oauth2User.getAttribute("sub")
+                    "name", Objects.requireNonNull(oauth2User.getAttribute("name")),
+                    "email", Objects.requireNonNull(oauth2User.getAttribute("email")),
+                    "sub", Objects.requireNonNull(oauth2User.getAttribute("sub"))
             );
         }
 
@@ -63,7 +64,6 @@ public class AuthSessionController {
                     "authenticated", true,
                     "authType", currentUserService.getAuthenticationType().name(),
                     "userId", user.getId().toString(),
-                    "username", user.getUsername(),
                     "displayName", user.getDisplayName()
             );
         }
