@@ -10,6 +10,7 @@ import com.spendwise.utils.AuthenticationType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,6 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/auth/password")
+@Slf4j
 public class PasswordAuthController {
 
     private final UserProfileService userProfileService;
@@ -47,6 +49,7 @@ public class PasswordAuthController {
     public UserProfileDto register(@Valid @RequestBody PasswordRegisterRequest request,
                                    HttpServletRequest httpRequest,
                                    HttpServletResponse httpResponse) {
+        log.info("Registering password user username={}", request.getUsername());
         UserProfile user;
         try {
             user = userProfileService.registerPasswordUser(
@@ -55,9 +58,11 @@ public class PasswordAuthController {
                     request.getDisplayName()
             );
         } catch (IllegalArgumentException ex) {
+            log.error("Password registration failed for username={}", request.getUsername(), ex);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
         authenticateSession(user, httpRequest, httpResponse);
+        log.info("Registered password user userId={}", user.getId());
         return UserProfileDto.from(user);
     }
 
@@ -73,17 +78,21 @@ public class PasswordAuthController {
     public UserProfileDto login(@Valid @RequestBody PasswordLoginRequest request,
                                 HttpServletRequest httpRequest,
                                 HttpServletResponse httpResponse) {
+        log.info("Authenticating password login for username={}", request.getUsername());
         UserProfile user = userProfileService.getByUsername(request.getUsername());
         if (!userProfileService.matchesPassword(user, request.getPassword())) {
+            log.error("Password login failed for username={}", request.getUsername());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
         }
         authenticateSession(user, httpRequest, httpResponse);
+        log.info("Password login succeeded for userId={}", user.getId());
         return UserProfileDto.from(user);
     }
 
     private void authenticateSession(UserProfile user,
                                      HttpServletRequest httpRequest,
                                      HttpServletResponse httpResponse) {
+        log.debug("Persisting password-authenticated session for userId={}", user.getId());
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(
                         new AuthenticatedUser(user.getId(), AuthenticationType.PASSWORD),

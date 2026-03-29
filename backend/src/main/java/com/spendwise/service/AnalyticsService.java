@@ -6,6 +6,7 @@ import com.spendwise.dto.service.ExpenseService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class AnalyticsService {
 
     private final ExpenseService expenseService;
@@ -29,6 +31,7 @@ public class AnalyticsService {
 
     @Transactional(readOnly = true)
     public MonthlySummary getMonthlySummary(UserProfile user, YearMonth month) {
+        log.debug("Calculating monthly summary for userId={} month={}", user.getId(), month);
         List<Expense> expenses = expenseService.listBetween(user, month.atDay(1), month.atEndOfMonth());
         BigDecimal total = expenses.stream().map(Expense::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal average = expenses.isEmpty()
@@ -39,6 +42,7 @@ public class AnalyticsService {
 
     @Transactional(readOnly = true)
     public List<CategorySpend> getCategorySummary(UserProfile user, YearMonth month) {
+        log.debug("Calculating category summary for userId={} month={}", user.getId(), month);
         return expenseService.listBetween(user, month.atDay(1), month.atEndOfMonth()).stream()
                 .collect(Collectors.groupingBy(
                         expense -> expense.getCategory() == null ? "UNCATEGORIZED" : expense.getCategory().getName(),
@@ -53,6 +57,7 @@ public class AnalyticsService {
 
     @Transactional(readOnly = true)
     public List<TrendPoint> getSpendingTrend(UserProfile user, LocalDate from, LocalDate to) {
+        log.debug("Calculating spending trend for userId={} from={} to={}", user.getId(), from, to);
         Map<LocalDate, BigDecimal> trend = expenseService.listBetween(user, from, to).stream()
                 .collect(Collectors.groupingBy(
                         Expense::getSpentAt,
@@ -66,6 +71,7 @@ public class AnalyticsService {
 
     @Transactional(readOnly = true)
     public List<ExpenseOutlier> findUnusualSpend(UserProfile user, YearMonth month) {
+        log.debug("Finding unusual spend for userId={} month={}", user.getId(), month);
         List<Expense> expenses = expenseService.listBetween(user, month.atDay(1), month.atEndOfMonth());
         BigDecimal average = getMonthlySummary(user, month).getAverageSpend();
         BigDecimal threshold = average.multiply(BigDecimal.valueOf(2));

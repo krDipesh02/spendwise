@@ -6,6 +6,7 @@ import com.spendwise.dto.response.ExpenseDto;
 import com.spendwise.service.CurrentUserService;
 import com.spendwise.dto.service.ExpenseService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +23,8 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/expenses")
+@RequestMapping("/expenses")
+@Slf4j
 public class ExpenseController {
 
     private final ExpenseService expenseService;
@@ -44,6 +46,7 @@ public class ExpenseController {
     public List<ExpenseDto> list(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                                  @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         UserProfile user = currentUserService.getCurrentUser();
+        log.info("Listing expenses for userId={} from={} to={}", user.getId(), from, to);
         return (from != null && to != null)
                 ? expenseService.listBetweenDtos(user, from, to)
                 : expenseService.listDtos(user);
@@ -57,7 +60,9 @@ public class ExpenseController {
      */
     @GetMapping("/{id}")
     public ExpenseDto get(@PathVariable UUID id) {
-        return expenseService.getDto(currentUserService.getCurrentUser(), id);
+        UserProfile user = currentUserService.getCurrentUser();
+        log.info("Fetching expense for userId={} expenseId={}", user.getId(), id);
+        return expenseService.getDto(user, id);
     }
 
     /**
@@ -69,6 +74,7 @@ public class ExpenseController {
     @PostMapping
     public ExpenseDto create(@Valid @RequestBody SaveExpenseRequest request) {
         UserProfile user = currentUserService.getCurrentUser();
+        log.info("Creating expense for userId={} categoryId={} spentAt={}", user.getId(), request.getCategoryId(), request.getSpentAt());
         return expenseService.createDto(
                 user,
                 request.getCategoryId(),
@@ -91,6 +97,7 @@ public class ExpenseController {
     @PutMapping("/{id}")
     public ExpenseDto update(@PathVariable UUID id, @Valid @RequestBody SaveExpenseRequest request) {
         UserProfile user = currentUserService.getCurrentUser();
+        log.info("Updating expense for userId={} expenseId={}", user.getId(), id);
         return expenseService.updateDto(
                 user,
                 id,
@@ -111,6 +118,8 @@ public class ExpenseController {
      */
     @DeleteMapping("/{id}")
     public void delete(@PathVariable UUID id) {
-        expenseService.delete(currentUserService.getCurrentUser(), id);
+        UserProfile user = currentUserService.getCurrentUser();
+        log.info("Deleting expense for userId={} expenseId={}", user.getId(), id);
+        expenseService.delete(user, id);
     }
 }

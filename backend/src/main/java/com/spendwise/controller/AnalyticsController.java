@@ -2,6 +2,7 @@ package com.spendwise.controller;
 
 import com.spendwise.service.AnalyticsService;
 import com.spendwise.service.CurrentUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +14,8 @@ import java.time.YearMonth;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/analytics")
+@RequestMapping("/analytics")
+@Slf4j
 public class AnalyticsController {
 
     private final AnalyticsService analyticsService;
@@ -32,7 +34,9 @@ public class AnalyticsController {
      */
     @GetMapping("/monthly-summary")
     public AnalyticsService.MonthlySummary monthlySummary(@RequestParam @DateTimeFormat(pattern = "yyyy-MM") YearMonth month) {
-        return analyticsService.getMonthlySummary(currentUserService.getCurrentUser(), month);
+        var user = currentUserService.getCurrentUser();
+        log.info("Fetching monthly summary for userId={} month={}", user.getId(), month);
+        return analyticsService.getMonthlySummary(user, month);
     }
 
     /**
@@ -43,7 +47,9 @@ public class AnalyticsController {
      */
     @GetMapping("/category-summary")
     public List<AnalyticsService.CategorySpend> categorySummary(@RequestParam @DateTimeFormat(pattern = "yyyy-MM") YearMonth month) {
-        return analyticsService.getCategorySummary(currentUserService.getCurrentUser(), month);
+        var user = currentUserService.getCurrentUser();
+        log.info("Fetching category summary for userId={} month={}", user.getId(), month);
+        return analyticsService.getCategorySummary(user, month);
     }
 
     /**
@@ -56,7 +62,9 @@ public class AnalyticsController {
     @GetMapping("/trend")
     public List<AnalyticsService.TrendPoint> trend(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
                                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        return analyticsService.getSpendingTrend(currentUserService.getCurrentUser(), from, to);
+        var user = currentUserService.getCurrentUser();
+        log.info("Fetching spending trend for userId={} from={} to={}", user.getId(), from, to);
+        return analyticsService.getSpendingTrend(user, from, to);
     }
 
     /**
@@ -67,6 +75,8 @@ public class AnalyticsController {
      */
     @GetMapping("/outliers")
     public List<AnalyticsService.ExpenseOutlier> outliers(@RequestParam @DateTimeFormat(pattern = "yyyy-MM") YearMonth month) {
-        return analyticsService.findUnusualSpend(currentUserService.getCurrentUser(), month);
+        var user = currentUserService.getCurrentUser();
+        log.info("Fetching outliers for userId={} month={}", user.getId(), month);
+        return analyticsService.findUnusualSpend(user, month);
     }
 }

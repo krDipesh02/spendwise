@@ -7,6 +7,7 @@ import com.spendwise.dto.response.ApiKeyDto;
 import com.spendwise.service.CurrentUserService;
 import com.spendwise.dto.service.UserApiKeyService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +20,8 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/api-keys")
+@RequestMapping("/api-keys")
+@Slf4j
 public class ApiKeyController {
 
     private final CurrentUserService currentUserService;
@@ -39,6 +41,7 @@ public class ApiKeyController {
     @PostMapping
     public ApiKeyCreatedDto create(@Valid @RequestBody CreateApiKeyRequest request) {
         UserProfile user = currentUserService.getCurrentUser();
+        log.info("Creating API key for userId={} name={}", user.getId(), request.getName());
         return userApiKeyService.generate(user, request.getName());
     }
 
@@ -50,6 +53,7 @@ public class ApiKeyController {
     @GetMapping
     public List<ApiKeyDto> list() {
         UserProfile user = currentUserService.getCurrentUser();
+        log.info("Listing API keys for userId={}", user.getId());
         return userApiKeyService.listActive(user).stream().map(ApiKeyDto::from).toList();
     }
 
@@ -61,6 +65,7 @@ public class ApiKeyController {
     @DeleteMapping("/{id}")
     public void revoke(@PathVariable UUID id) {
         UserProfile user = currentUserService.getCurrentUser();
+        log.info("Revoking API key for userId={} apiKeyId={}", user.getId(), id);
         userApiKeyService.revoke(user, id);
     }
 }

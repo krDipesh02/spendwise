@@ -5,6 +5,7 @@ import com.spendwise.dto.request.SetBudgetRequest;
 import com.spendwise.dto.service.BudgetService;
 import com.spendwise.service.CurrentUserService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,8 @@ import java.time.YearMonth;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/budgets")
+@RequestMapping("/budgets")
+@Slf4j
 public class BudgetController {
 
     private final BudgetService budgetService;
@@ -37,6 +39,7 @@ public class BudgetController {
     @PostMapping
     public BudgetService.BudgetStatus setBudget(@Valid @RequestBody SetBudgetRequest request) {
         UserProfile user = currentUserService.getCurrentUser();
+        log.info("Setting budget for userId={} month={} categoryId={}", user.getId(), request.getMonth(), request.getCategoryId());
         budgetService.setBudget(user, request.getCategoryId(), request.getMonth(), request.getAmount());
         return budgetService.getBudgetStatus(user, request.getMonth()).stream()
                 .filter(status -> request.getCategoryId() == null
@@ -54,6 +57,8 @@ public class BudgetController {
      */
     @GetMapping
     public List<BudgetService.BudgetStatus> status(@RequestParam @DateTimeFormat(pattern = "yyyy-MM") YearMonth month) {
-        return budgetService.getBudgetStatus(currentUserService.getCurrentUser(), month);
+        UserProfile user = currentUserService.getCurrentUser();
+        log.info("Listing budgets for userId={} month={}", user.getId(), month);
+        return budgetService.getBudgetStatus(user, month);
     }
 }
