@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/api-keys")
+@RequestMapping("/api-keys")
 public class ApiKeyController {
 
     private final CurrentUserService currentUserService;

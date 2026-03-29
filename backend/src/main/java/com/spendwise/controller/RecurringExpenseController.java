@@ -20,7 +20,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/recurring-expenses")
+@RequestMapping("/recurring-expenses")
 public class RecurringExpenseController {
 
     private final RecurringExpenseService recurringExpenseService;

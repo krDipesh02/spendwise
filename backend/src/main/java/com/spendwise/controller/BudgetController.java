@@ -17,7 +17,7 @@ import java.time.YearMonth;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/budgets")
+@RequestMapping("/budgets")
 public class BudgetController {
 
     private final BudgetService budgetService;

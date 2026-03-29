@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/receipts")
+@RequestMapping("/receipts")
 public class ReceiptController {
 
     private final ReceiptService receiptService;

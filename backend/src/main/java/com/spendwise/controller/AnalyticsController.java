@@ -13,7 +13,7 @@ import java.time.YearMonth;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/analytics")
+@RequestMapping("/analytics")
 public class AnalyticsController {
 
     private final AnalyticsService analyticsService;
