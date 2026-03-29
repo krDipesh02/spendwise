@@ -8,6 +8,7 @@ import com.spendwise.dto.response.RecurringExpenseDto;
 import com.spendwise.service.CurrentUserService;
 import com.spendwise.dto.service.RecurringExpenseService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/recurring-expenses")
+@Slf4j
 public class RecurringExpenseController {
 
     private final RecurringExpenseService recurringExpenseService;
@@ -40,6 +42,7 @@ public class RecurringExpenseController {
     @PostMapping
     public RecurringExpenseDto create(@Valid @RequestBody SaveRecurringExpenseRequest request) {
         UserProfile user = currentUserService.getCurrentUser();
+        log.info("Creating recurring expense for userId={} categoryId={} nextDueDate={}", user.getId(), request.getCategoryId(), request.getNextDueDate());
         return RecurringExpenseDto.from(recurringExpenseService.create(
                 user,
                 request.getCategoryId(),
@@ -60,6 +63,7 @@ public class RecurringExpenseController {
     @GetMapping
     public List<RecurringExpenseDto> list(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueBy) {
         UserProfile user = currentUserService.getCurrentUser();
+        log.info("Listing recurring expenses for userId={} dueBy={}", user.getId(), dueBy);
         List<RecurringExpense> recurringExpenses = dueBy == null
                 ? recurringExpenseService.list(user)
                 : recurringExpenseService.dueBy(user, dueBy);

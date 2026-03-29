@@ -10,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class BudgetService {
 
     private final BudgetRepository budgetRepository;
@@ -39,6 +41,7 @@ public class BudgetService {
 
     @Transactional
     public Budget setBudget(UserProfile user, UUID categoryId, YearMonth month, BigDecimal amount) {
+        log.info("Persisting budget for userId={} categoryId={} month={} amount={}", user.getId(), categoryId, month, amount);
         LocalDate monthStart = month.atDay(1);
         Budget budget = (categoryId == null)
                 ? budgetRepository.findByUserIdAndCategoryIsNullAndMonthStart(user.getId(), monthStart).orElseGet(Budget::new)
@@ -48,12 +51,14 @@ public class BudgetService {
         budget.setMonthStart(monthStart);
         budget.setAmount(amount);
         Budget saved = budgetRepository.save(budget);
+        log.info("Persisted budgetId={} for userId={}", saved.getId(), user.getId());
         auditService.log(user, "SET_BUDGET", "BUDGET", saved.getId().toString(), amount.toPlainString());
         return saved;
     }
 
     @Transactional(readOnly = true)
     public List<BudgetStatus> getBudgetStatus(UserProfile user, YearMonth month) {
+        log.debug("Computing budget status for userId={} month={}", user.getId(), month);
         LocalDate monthStart = month.atDay(1);
         List<Expense> expenses = expenseService.listBetween(user, month.atDay(1), month.atEndOfMonth());
         return budgetRepository.findByUserIdAndMonthStart(user.getId(), monthStart).stream()
@@ -87,6 +92,7 @@ public class BudgetService {
         if (categoryId == null) {
             return null;
         }
+        log.debug("Resolving budget categoryId={} for userId={}", categoryId, user.getId());
         return categoryRepository.findByIdAndUserId(categoryId, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Category not found"));
     }

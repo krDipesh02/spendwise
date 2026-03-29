@@ -6,6 +6,7 @@ import com.spendwise.dto.request.PasswordResetRequest;
 import com.spendwise.dto.response.PasswordResetTokenResponse;
 import com.spendwise.dto.service.PasswordResetService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth/password/reset")
+@Slf4j
 public class PasswordResetController {
 
     private final PasswordResetService passwordResetService;
@@ -33,6 +35,7 @@ public class PasswordResetController {
      */
     @PostMapping("/request")
     public PasswordResetTokenResponse request(@Valid @RequestBody PasswordResetRequest request) {
+        log.info("Requesting password reset for username={}", request.getUsername());
         PasswordResetToken token = passwordResetService.requestReset(request.getUsername());
         return new PasswordResetTokenResponse(token.getToken(), token.getExpiresAt());
     }
@@ -45,9 +48,11 @@ public class PasswordResetController {
      */
     @PostMapping("/confirm")
     public Map<String, Object> confirm(@Valid @RequestBody PasswordResetConfirmRequest request) {
+        log.info("Confirming password reset");
         try {
             passwordResetService.confirmReset(request.getToken(), request.getNewPassword());
         } catch (IllegalArgumentException ex) {
+            log.error("Password reset confirmation failed", ex);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
         return Map.of("status", "password_reset");

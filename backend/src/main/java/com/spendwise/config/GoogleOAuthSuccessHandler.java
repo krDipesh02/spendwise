@@ -4,6 +4,7 @@ import com.spendwise.dto.entity.UserProfile;
 import com.spendwise.dto.service.UserProfileService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
+@Slf4j
 public class GoogleOAuthSuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserProfileService userProfileService;
@@ -34,6 +36,7 @@ public class GoogleOAuthSuccessHandler implements AuthenticationSuccessHandler {
         String pictureUrl = oauthUser.getAttribute("picture");
         String displayName = oauthUser.getAttribute("name");
 
+        log.info("Handling Google OAuth success for subject={} path={}", googleSubject, request.getRequestURI());
         UserProfile user = userProfileService.getOrCreateFromGoogle(
                 googleSubject,
                 email,
@@ -42,6 +45,7 @@ public class GoogleOAuthSuccessHandler implements AuthenticationSuccessHandler {
                 displayName
         );
 
+        log.info("Completed Google OAuth success for userId={}", user.getId());
         response.sendRedirect(authProperties.getGoogleSuccessRedirectUrl());
     }
 

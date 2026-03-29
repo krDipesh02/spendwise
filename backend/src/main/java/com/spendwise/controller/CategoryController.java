@@ -7,6 +7,7 @@ import com.spendwise.dto.response.CategoryDto;
 import com.spendwise.dto.service.CategoryService;
 import com.spendwise.service.CurrentUserService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/categories")
+@Slf4j
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -37,7 +39,9 @@ public class CategoryController {
      */
     @GetMapping
     public List<CategoryDto> list() {
-        return categoryService.list(currentUserService.getCurrentUser()).stream().map(CategoryDto::from).toList();
+        UserProfile user = currentUserService.getCurrentUser();
+        log.info("Listing categories for userId={}", user.getId());
+        return categoryService.list(user).stream().map(CategoryDto::from).toList();
     }
 
     /**
@@ -49,6 +53,7 @@ public class CategoryController {
     @PostMapping
     public CategoryDto create(@Valid @RequestBody SaveCategoryRequest request) {
         UserProfile user = currentUserService.getCurrentUser();
+        log.info("Creating category for userId={} name={}", user.getId(), request.getName());
         return CategoryDto.from(categoryService.create(user, request.getName(), request.getIcon()));
     }
 
@@ -62,6 +67,7 @@ public class CategoryController {
     @PutMapping("/{id}")
     public CategoryDto update(@PathVariable UUID id, @Valid @RequestBody UpdateCategoryRequest request) {
         UserProfile user = currentUserService.getCurrentUser();
+        log.info("Updating category for userId={} categoryId={}", user.getId(), id);
         return CategoryDto.from(categoryService.update(user, id, request.getName(), request.getIcon(), request.isActive()));
     }
 }

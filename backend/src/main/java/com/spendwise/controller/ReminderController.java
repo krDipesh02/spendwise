@@ -3,6 +3,7 @@ package com.spendwise.controller;
 import com.spendwise.dto.response.ReminderDto;
 import com.spendwise.service.CurrentUserService;
 import com.spendwise.service.ReminderService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/reminders")
+@Slf4j
 public class ReminderController {
 
     private final ReminderService reminderService;
@@ -29,7 +31,9 @@ public class ReminderController {
      */
     @PostMapping("/generate")
     public List<ReminderDto> generate() {
-        return reminderService.generateReminders(currentUserService.getCurrentUser()).stream().map(ReminderDto::from).toList();
+        var user = currentUserService.getCurrentUser();
+        log.info("Generating reminders for userId={}", user.getId());
+        return reminderService.generateReminders(user).stream().map(ReminderDto::from).toList();
     }
 
     /**
@@ -39,6 +43,8 @@ public class ReminderController {
      */
     @GetMapping
     public List<ReminderDto> list() {
-        return reminderService.listUpcoming(currentUserService.getCurrentUser()).stream().map(ReminderDto::from).toList();
+        var user = currentUserService.getCurrentUser();
+        log.info("Listing reminders for userId={}", user.getId());
+        return reminderService.listUpcoming(user).stream().map(ReminderDto::from).toList();
     }
 }

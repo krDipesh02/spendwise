@@ -10,6 +10,7 @@ import com.spendwise.dto.repository.ReceiptRepository;
 import com.spendwise.dto.response.ExpenseDto;
 import com.spendwise.model.ExpenseStatus;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
@@ -45,6 +47,8 @@ public class ExpenseService {
                           String merchant,
                           String description,
                           UUID receiptId) {
+        log.info("Creating expense for userId={} categoryId={} spentAt={} receiptId={}",
+                user.getId(), categoryId, spentAt, receiptId);
         Expense expense = new Expense();
         expense.setUser(user);
         expense.setCategory(resolveCategory(user, categoryId));
@@ -56,6 +60,7 @@ public class ExpenseService {
         expense.setDescription(description);
         expense.setStatus(ExpenseStatus.RECORDED);
         Expense saved = expenseRepository.save(expense);
+        log.info("Created expenseId={} for userId={}", saved.getId(), user.getId());
         auditService.log(user, "CREATE_EXPENSE", "EXPENSE", saved.getId().toString(), saved.getAmount().toPlainString());
         return saved;
     }
@@ -82,6 +87,7 @@ public class ExpenseService {
                           String merchant,
                           String description,
                           UUID receiptId) {
+        log.info("Updating expenseId={} for userId={}", expenseId, user.getId());
         Expense expense = expenseRepository.findByIdAndUserId(expenseId, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Expense not found"));
         expense.setCategory(resolveCategory(user, categoryId));
@@ -91,6 +97,7 @@ public class ExpenseService {
         expense.setSpentAt(spentAt);
         expense.setMerchant(merchant);
         expense.setDescription(description);
+        log.info("Updated expenseId={} for userId={}", expense.getId(), user.getId());
         auditService.log(user, "UPDATE_EXPENSE", "EXPENSE", expense.getId().toString(), expense.getAmount().toPlainString());
         return expense;
     }
@@ -110,14 +117,17 @@ public class ExpenseService {
 
     @Transactional
     public void delete(UserProfile user, UUID expenseId) {
+        log.info("Deleting expenseId={} for userId={}", expenseId, user.getId());
         Expense expense = expenseRepository.findByIdAndUserId(expenseId, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Expense not found"));
         expenseRepository.delete(expense);
+        log.info("Deleted expenseId={} for userId={}", expenseId, user.getId());
         auditService.log(user, "DELETE_EXPENSE", "EXPENSE", expenseId.toString(), expense.getAmount().toPlainString());
     }
 
     @Transactional(readOnly = true)
     public List<Expense> list(UserProfile user) {
+        log.debug("Listing all expenses for userId={}", user.getId());
         return expenseRepository.findByUserIdOrderBySpentAtDescCreatedAtDesc(user.getId());
     }
 
@@ -128,6 +138,7 @@ public class ExpenseService {
 
     @Transactional(readOnly = true)
     public List<Expense> listBetween(UserProfile user, LocalDate from, LocalDate to) {
+        log.debug("Listing expenses between dates for userId={} from={} to={}", user.getId(), from, to);
         return expenseRepository.findByUserIdAndSpentAtBetweenOrderBySpentAtAsc(user.getId(), from, to);
     }
 
@@ -138,6 +149,7 @@ public class ExpenseService {
 
     @Transactional(readOnly = true)
     public Expense get(UserProfile user, UUID expenseId) {
+        log.debug("Fetching expenseId={} for userId={}", expenseId, user.getId());
         return expenseRepository.findByIdAndUserId(expenseId, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Expense not found"));
     }
@@ -151,6 +163,7 @@ public class ExpenseService {
         if (categoryId == null) {
             return null;
         }
+        log.debug("Resolving expense categoryId={} for userId={}", categoryId, user.getId());
         return categoryRepository.findByIdAndUserId(categoryId, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Category not found"));
     }
@@ -159,6 +172,7 @@ public class ExpenseService {
         if (receiptId == null) {
             return null;
         }
+        log.debug("Resolving receiptId={} for expense mutation", receiptId);
         return receiptRepository.findById(receiptId)
                 .orElseThrow(() -> new EntityNotFoundException("Receipt not found"));
     }

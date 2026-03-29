@@ -8,6 +8,7 @@ import com.spendwise.dto.service.AuditService;
 import com.spendwise.dto.service.BudgetService;
 import com.spendwise.dto.service.RecurringExpenseService;
 import com.spendwise.model.ReminderType;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class ReminderService {
 
     private final ReminderRepository reminderRepository;
@@ -39,6 +41,7 @@ public class ReminderService {
 
     @Transactional
     public List<Reminder> generateReminders(UserProfile user) {
+        log.info("Generating reminders for userId={}", user.getId());
         LocalDate today = LocalDate.now();
         List<Reminder> reminders = new ArrayList<>();
 
@@ -74,12 +77,14 @@ public class ReminderService {
         }
 
         List<Reminder> saved = reminderRepository.saveAll(reminders);
+        log.info("Generated reminders for userId={} count={}", user.getId(), saved.size());
         auditService.log(user, "GENERATE_REMINDERS", "REMINDER", "BATCH", String.valueOf(saved.size()));
         return saved;
     }
 
     @Transactional(readOnly = true)
     public List<Reminder> listUpcoming(UserProfile user) {
+        log.debug("Listing upcoming reminders for userId={}", user.getId());
         return reminderRepository.findByUserIdAndDueDateGreaterThanEqualOrderByDueDateAsc(user.getId(), LocalDate.now());
     }
 

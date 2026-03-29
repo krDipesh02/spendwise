@@ -3,6 +3,7 @@ package com.spendwise.controller;
 import com.spendwise.dto.service.AuditService;
 import com.spendwise.dto.response.AuditLogResponse;
 import com.spendwise.service.CurrentUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/audit")
+@Slf4j
 public class AuditController {
 
     private final AuditService auditService;
@@ -28,6 +30,8 @@ public class AuditController {
      */
     @GetMapping
     public List<AuditLogResponse> list() {
-        return auditService.list(currentUserService.getCurrentUser()).stream().map(AuditLogResponse::from).toList();
+        var user = currentUserService.getCurrentUser();
+        log.info("Listing audit records for userId={}", user.getId());
+        return auditService.list(user).stream().map(AuditLogResponse::from).toList();
     }
 }
