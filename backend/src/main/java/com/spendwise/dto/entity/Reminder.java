@@ -11,8 +11,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDate;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "reminders")
 public class Reminder extends BaseEntity {
@@ -36,52 +41,4 @@ public class Reminder extends BaseEntity {
 
     @Column(nullable = false)
     private boolean acknowledged;
-
-    public UserProfile getUser() {
-        return user;
-    }
-
-    public void setUser(UserProfile user) {
-        this.user = user;
-    }
-
-    public ReminderType getType() {
-        return type;
-    }
-
-    public void setType(ReminderType type) {
-        this.type = type;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public LocalDate getDueDate() {
-        return dueDate;
-    }
-
-    public void setDueDate(LocalDate dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public boolean isAcknowledged() {
-        return acknowledged;
-    }
-
-    public void setAcknowledged(boolean acknowledged) {
-        this.acknowledged = acknowledged;
-    }
 }

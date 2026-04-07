@@ -14,4 +14,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class AuthProperties {
 
     private String googleSuccessRedirectUrl;
+    private String automationServiceToken;
+    private long conversationMemoryTtlSeconds = 86400;
+    private int conversationMemoryMaxMessages = 20;
 }

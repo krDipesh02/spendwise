@@ -12,7 +12,4 @@ public class SaveCategoryRequest {
 
     @NotBlank
     private String name;
-
-    @NotBlank
-    private String icon;
 }

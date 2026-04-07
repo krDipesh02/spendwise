@@ -11,9 +11,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "expenses")
 public class Expense extends BaseEntity {
@@ -52,83 +57,5 @@ public class Expense extends BaseEntity {
     @Column(nullable = false)
     private ExpenseStatus status;
 
-    public UserProfile getUser() {
-        return user;
-    }
 
-    public void setUser(UserProfile user) {
-        this.user = user;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public Receipt getReceipt() {
-        return receipt;
-    }
-
-    public void setReceipt(Receipt receipt) {
-        this.receipt = receipt;
-    }
-
-    public RecurringExpense getRecurringExpense() {
-        return recurringExpense;
-    }
-
-    public void setRecurringExpense(RecurringExpense recurringExpense) {
-        this.recurringExpense = recurringExpense;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    public LocalDate getSpentAt() {
-        return spentAt;
-    }
-
-    public void setSpentAt(LocalDate spentAt) {
-        this.spentAt = spentAt;
-    }
-
-    public String getMerchant() {
-        return merchant;
-    }
-
-    public void setMerchant(String merchant) {
-        this.merchant = merchant;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public ExpenseStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ExpenseStatus status) {
-        this.status = status;
-    }
 }

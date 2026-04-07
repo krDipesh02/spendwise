@@ -19,13 +19,13 @@ import java.util.List;
 @Slf4j
 public class SeedDataConfig {
 
-    private static final List<String[]> DEFAULT_CATEGORIES = List.of(
-            new String[]{"Food", "utensils"},
-            new String[]{"Travel", "plane"},
-            new String[]{"Shopping", "shopping-bag"},
-            new String[]{"Bills", "receipt"},
-            new String[]{"Health", "heart-pulse"},
-            new String[]{"Subscriptions", "repeat"}
+    private static final List<String> DEFAULT_CATEGORIES = List.of(
+            "Food",
+            "Travel",
+            "Shopping",
+            "Bills",
+            "Health",
+            "Subscriptions"
     );
 
     private final CategoryRepository categoryRepository;
@@ -65,8 +65,7 @@ public class SeedDataConfig {
                 .map(defaultCategory -> {
                     Category category = new Category();
                     category.setUser(user);
-                    category.setName(defaultCategory[0]);
-                    category.setIcon(defaultCategory[1]);
+                    category.setName(defaultCategory);
                     category.setActive(true);
                     return category;
                 })

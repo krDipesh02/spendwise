@@ -8,8 +8,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.Instant;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "user_api_keys")
 public class UserApiKey extends BaseEntity {
@@ -32,52 +37,4 @@ public class UserApiKey extends BaseEntity {
 
     @Column
     private Instant revokedAt;
-
-    public UserProfile getUser() {
-        return user;
-    }
-
-    public void setUser(UserProfile user) {
-        this.user = user;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getKeyPrefix() {
-        return keyPrefix;
-    }
-
-    public void setKeyPrefix(String keyPrefix) {
-        this.keyPrefix = keyPrefix;
-    }
-
-    public String getKeyHash() {
-        return keyHash;
-    }
-
-    public void setKeyHash(String keyHash) {
-        this.keyHash = keyHash;
-    }
-
-    public Instant getLastUsedAt() {
-        return lastUsedAt;
-    }
-
-    public void setLastUsedAt(Instant lastUsedAt) {
-        this.lastUsedAt = lastUsedAt;
-    }
-
-    public Instant getRevokedAt() {
-        return revokedAt;
-    }
-
-    public void setRevokedAt(Instant revokedAt) {
-        this.revokedAt = revokedAt;
-    }
 }

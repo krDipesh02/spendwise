@@ -23,7 +23,7 @@ public class SecurityConfig {
                 .addFilterBefore(apiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(registry -> registry
                         .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers("/oauth2/**", "/login/**", "/auth/google/**", "/auth/password/**", "/auth/session", "/auth/logout").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/**", "/auth/google/**", "/auth/password/**", "/auth/session", "/auth/logout", "/auth/telegram/**", "/auth/automation/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth.successHandler(googleOAuthSuccessHandler))

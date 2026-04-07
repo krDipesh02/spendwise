@@ -12,14 +12,12 @@ public class CategoryDto {
 
     private String id;
     private String name;
-    private String icon;
     private boolean active;
 
     public static CategoryDto from(Category category) {
         return new CategoryDto(
                 category.getId().toString(),
                 category.getName(),
-                category.getIcon(),
                 category.isActive()
         );
     }

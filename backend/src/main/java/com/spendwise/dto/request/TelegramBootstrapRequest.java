@@ -8,10 +8,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateCategoryRequest {
+public class TelegramBootstrapRequest {
 
     @NotBlank
-    private String name;
+    private String telegramUserId;
 
-    private boolean active;
+    private String telegramUsername;
+    private String firstName;
+    private String lastName;
 }

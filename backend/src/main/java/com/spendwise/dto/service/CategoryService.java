@@ -41,12 +41,11 @@ public class CategoryService {
     }
 
     @Transactional
-    public Category create(UserProfile user, String name, String icon) {
+    public Category create(UserProfile user, String name) {
         log.info("Creating category for userId={} name={}", user.getId(), name);
         Category category = new Category();
         category.setUser(user);
         category.setName(name);
-        category.setIcon(icon);
         category.setActive(true);
         Category saved = categoryRepository.save(category);
         log.info("Created categoryId={} for userId={}", saved.getId(), user.getId());
@@ -55,12 +54,11 @@ public class CategoryService {
     }
 
     @Transactional
-    public Category update(UserProfile user, UUID id, String name, String icon, boolean active) {
+    public Category update(UserProfile user, UUID id, String name, boolean active) {
         log.info("Updating categoryId={} for userId={}", id, user.getId());
         Category category = categoryRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Category not found"));
         category.setName(name);
-        category.setIcon(icon);
         category.setActive(active);
         log.info("Updated categoryId={} for userId={}", category.getId(), user.getId());
         auditService.log(user, "UPDATE_CATEGORY", "CATEGORY", category.getId().toString(), name);
