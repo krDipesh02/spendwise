@@ -120,6 +120,38 @@ public class UserProfileService {
         return saved;
     }
 
+    @Transactional
+    public TelegramBootstrapResult getOrCreateFromTelegram(@NotBlank String telegramId,
+                                                           String telegramUsername,
+                                                           String firstName,
+                                                           String lastName) {
+        log.info("Resolving Telegram-authenticated user telegramId={}", telegramId);
+        var existing = userProfileRepository.findByTelegramId(telegramId);
+        boolean created = existing.isEmpty();
+        UserProfile user = existing.orElseGet(UserProfile::new);
+        user.setTelegramId(telegramId);
+        if (user.getDisplayName() == null || user.getDisplayName().isBlank() || created) {
+            user.setDisplayName(resolveTelegramDisplayName(telegramId, telegramUsername, firstName, lastName));
+        }
+        if (user.getBaseCurrency() == null || user.getBaseCurrency().isBlank()) {
+            user.setBaseCurrency("INR");
+        }
+        if (user.getTimezone() == null || user.getTimezone().isBlank()) {
+            user.setTimezone("Asia/Kolkata");
+        }
+        if (user.getMonthlyLimit() == null) {
+            user.setMonthlyLimit(BigDecimal.ZERO);
+        }
+        UserProfile saved = userProfileRepository.save(user);
+        if (created) {
+            seedDataConfig.seedDefaultCategories(saved);
+            auditService.log(saved, "REGISTER_TELEGRAM", "USER", saved.getId().toString(), telegramId);
+        } else {
+            auditService.log(saved, "LOGIN_TELEGRAM", "USER", saved.getId().toString(), telegramId);
+        }
+        return new TelegramBootstrapResult(saved, created);
+    }
+
     @Transactional(readOnly = true)
     public UserProfile getByUsername(@NotBlank String username) {
         log.debug("Fetching user by username={}", username);
@@ -127,8 +159,32 @@ public class UserProfileService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found for username"));
     }
 
+    @Transactional(readOnly = true)
+    public UserProfile getByTelegramId(@NotBlank String telegramId) {
+        log.debug("Fetching user by Telegram id={}", telegramId);
+        return userProfileRepository.findByTelegramId(telegramId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found for telegramId"));
+    }
+
     public boolean matchesPassword(UserProfile user, String rawPassword) {
         log.debug("Comparing password hash for userId={}", user.getId());
         return user.getPasswordHash() != null && passwordEncoder.matches(rawPassword, user.getPasswordHash());
+    }
+
+    private String resolveTelegramDisplayName(String telegramId,
+                                              String telegramUsername,
+                                              String firstName,
+                                              String lastName) {
+        String fullName = ((firstName == null ? "" : firstName.trim()) + " " + (lastName == null ? "" : lastName.trim())).trim();
+        if (!fullName.isBlank()) {
+            return fullName;
+        }
+        if (telegramUsername != null && !telegramUsername.trim().isBlank()) {
+            return "@" + telegramUsername.trim();
+        }
+        return "Telegram User " + telegramId;
+    }
+
+    public record TelegramBootstrapResult(UserProfile user, boolean created) {
     }
 }

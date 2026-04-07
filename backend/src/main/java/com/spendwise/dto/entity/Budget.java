@@ -8,9 +8,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "budgets")
 public class Budget extends BaseEntity {
@@ -28,36 +33,4 @@ public class Budget extends BaseEntity {
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
-
-    public UserProfile getUser() {
-        return user;
-    }
-
-    public void setUser(UserProfile user) {
-        this.user = user;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public LocalDate getMonthStart() {
-        return monthStart;
-    }
-
-    public void setMonthStart(LocalDate monthStart) {
-        this.monthStart = monthStart;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
 }

@@ -4,7 +4,7 @@ import PageHeader from "../components/PageHeader";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
-  const [form, setForm] = useState({ name: "", icon: "tag" });
+  const [form, setForm] = useState({ name: "" });
 
   useEffect(() => {
     reload();
@@ -17,14 +17,13 @@ export default function CategoriesPage() {
   async function createCategory(event) {
     event.preventDefault();
     await api.createCategory(form);
-    setForm({ name: "", icon: "tag" });
+    setForm({ name: "" });
     await reload();
   }
 
   async function toggleCategory(category) {
     await api.updateCategory(category.id, {
       name: category.name,
-      icon: category.icon,
       active: !category.active
     });
     await reload();
@@ -49,14 +48,6 @@ export default function CategoriesPage() {
             <input
               value={form.name}
               onChange={(event) => setForm({ ...form, name: event.target.value })}
-              required
-            />
-          </label>
-          <label className="field">
-            <span>Icon</span>
-            <input
-              value={form.icon}
-              onChange={(event) => setForm({ ...form, icon: event.target.value })}
               required
             />
           </label>

@@ -54,7 +54,7 @@ public class CategoryController {
     public CategoryDto create(@Valid @RequestBody SaveCategoryRequest request) {
         UserProfile user = currentUserService.getCurrentUser();
         log.info("Creating category for userId={} name={}", user.getId(), request.getName());
-        return CategoryDto.from(categoryService.create(user, request.getName(), request.getIcon()));
+        return CategoryDto.from(categoryService.create(user, request.getName()));
     }
 
     /**
@@ -68,6 +68,6 @@ public class CategoryController {
     public CategoryDto update(@PathVariable UUID id, @Valid @RequestBody UpdateCategoryRequest request) {
         UserProfile user = currentUserService.getCurrentUser();
         log.info("Updating category for userId={} categoryId={}", user.getId(), id);
-        return CategoryDto.from(categoryService.update(user, id, request.getName(), request.getIcon(), request.isActive()));
+        return CategoryDto.from(categoryService.update(user, id, request.getName(), request.isActive()));
     }
 }
